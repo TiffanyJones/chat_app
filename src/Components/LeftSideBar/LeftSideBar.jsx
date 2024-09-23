@@ -19,76 +19,70 @@ import { AppContext } from "../../context/AppContext";
 import { toast } from "react-toastify";
 
 const LeftSideBar = () => {
-  const navigate = useNavigate(); // Hook to navigate programmatically
-  const { userData, chatData, setChatUser, setMessagesId, messagesId } = useContext(AppContext); // Get userData and chatData from context
-  const [user, setUser] = useState(null); // State to store the searched user
-  const [showSearch, setShowSearch] = useState(false); // State to toggle search results display
+  const navigate = useNavigate(); 
+  const { userData, chatData, setChatUser, setMessagesId, messagesId } = useContext(AppContext); 
+  const [user, setUser] = useState(null); 
+  const [showSearch, setShowSearch] = useState(false); 
 
-  // Handles the input changes in the search field
+ 
   const inputHandler = async (e) => {
     try {
-      const input = e.target.value; // Get the input value
+      const input = e.target.value; 
 
       if (input) {
-        setShowSearch(true); // Show search results if there's input
-        const userRef = collection(db, "users"); // Reference to 'users' collection
-        const q = query(userRef, where("username", "==", input.toLowerCase())); // Query for matching usernames
-        const querySnap = await getDocs(q); // Execute the query
+        setShowSearch(true); 
+        const userRef = collection(db, "users"); 
+        const q = query(userRef, where("username", "==", input.toLowerCase())); 
+        const querySnap = await getDocs(q); 
 
-        // Check if results are found and the user is not the current user
+      
         if (!querySnap.empty && querySnap.docs[0].data().id !== userData.id) {
           let userExist = false;
 
-          // Check if the user already exists in chatData
+        
           chatData.forEach((user) => {
             if (user.rId === querySnap.docs[0].data().id) {
               userExist = true;
             }
           });
 
-          // If the user does not exist in chatData, set the user state
-          if (!userExist) {
+                   if (!userExist) {
             setUser(querySnap.docs[0].data());
           } else {
-            setUser(null); // Clear the user state if user exists in chatData
+            setUser(null); 
           }
         } else {
-          setUser(null); // No results or user is the current user, clear the user state
+          setUser(null); 
         }
       } else {
-        setShowSearch(false); // Hide search results if input is cleared
+        setShowSearch(false); 
       }
     } catch (error) {
-      toast.error(error.message); // Show error message if something goes wrong
+      toast.error(error.message);
     }
   };
 
-  // Handles adding a new chat between the current user and the selected user
-  const addChat = async () => {
-    // Check if the selected user is valid
-    if (!user || !user.id) {
-      return toast.error("User not found or invalid."); // Show error if user is invalid
+    const addChat = async () => {
+        if (!user || !user.id) {
+      return toast.error("User not found or invalid."); 
     }
 
-    // Check if a chat already exists with the selected user
+   
     const chatExists = chatData.some(chat => chat.rId === user.id);
     if (chatExists) {
-      return toast.info("Chat with this user already exists."); // Notify user that chat already exists
+      return toast.info("Chat with this user already exists."); 
     }
 
     try {
-      const messagesRef = collection(db, "messages"); // Reference to 'messages' collection
-      const chatsRef = collection(db, "chats"); // Reference to 'chats' collection
-
-      // Create a new document for the message
+      const messagesRef = collection(db, "messages");
+      const chatsRef = collection(db, "chats"); 
       const newMessageRef = doc(messagesRef);
       await setDoc(newMessageRef, {
-        createdAt: serverTimestamp(), // Set creation timestamp
-        messages: [], // Initialize with an empty array for messages
+        createdAt: serverTimestamp(), 
+        messages: [], 
       });
 
-      // Add the new chat data to the selected user's document without updatedAt
-      await updateDoc(doc(chatsRef, user.id), {
+           await updateDoc(doc(chatsRef, user.id), {
         chatData: arrayUnion({
           messagesId: newMessageRef.id,
           lastMessage: "",
@@ -97,8 +91,7 @@ const LeftSideBar = () => {
         }),
       });
 
-      // Add the new chat data to the current user's document without updatedAt
-      await updateDoc(doc(chatsRef, userData.id), {
+           await updateDoc(doc(chatsRef, userData.id), {
         chatData: arrayUnion({
           messagesId: newMessageRef.id,
           lastMessage: "",
@@ -107,7 +100,7 @@ const LeftSideBar = () => {
         }),
       });
 
-      // Update the updatedAt timestamp separately for both users
+     
       await updateDoc(doc(chatsRef, user.id), {
         updatedAt: serverTimestamp()
       });
@@ -116,21 +109,19 @@ const LeftSideBar = () => {
         updatedAt: serverTimestamp()
       });
 
-      toast.success("Chat added successfully!"); // Notify success
-      setShowSearch(false); // Hide search results after adding the chat
+      toast.success("Chat added successfully!"); 
+      setShowSearch(false); 
     } catch (error) {
-      toast.error(error.message); // Show error message if something goes wrong
-      console.error(error); // Log error to the console
+      toast.error(error.message);
+      console.error(error); 
     }
   };
 
-  // Handles selecting an existing chat from the list
   const setChat = async (item) => {
     try {
-      setMessagesId(item.messagesId); // Set the selected chat's messagesId
-    setChatUser(item); // Set the selected chat user
-
-    // Mark the message as seen
+      setMessagesId(item.messagesId); 
+    setChatUser(item); 
+    
     const userChatsRef = doc(db, 'chats', userData.id);
     const userChatsSnapshot = await getDoc(userChatsRef);
     const userChatData = userChatsSnapshot.data();
@@ -153,20 +144,20 @@ const LeftSideBar = () => {
     <div className="ls">
       <div className="ls-top">
         <div className="ls-nav">
-          <img src={assets.logo} className="logo" alt="" /> {/* Logo */}
+          <img src={assets.logo} className="logo" alt="" />
           <div className="menu">
-            <img src={assets.menu_icon} alt="" /> {/* Menu icon */}
+            <img src={assets.menu_icon} alt="" /> 
             <div className="sub-menu">
-              <p onClick={() => navigate("/profile")}>Edit Profile</p> {/* Navigate to profile */}
+              <p onClick={() => navigate("/profile")}>Edit Profile</p> 
               <hr />
-              <p onClick={()=>logout()}>Logout</p> {/* Placeholder for logout */}
+              <p onClick={()=>logout()}>Logout</p> 
             </div>
           </div>
         </div>
         <div className="ls-search">
-          <img src={assets.search_icon} alt="" /> {/* Search icon */}
+          <img src={assets.search_icon} alt="" />
           <input
-            onChange={inputHandler} // Handle input changes
+            onChange={inputHandler} 
             type="text"
             placeholder="Search here..."
           />
@@ -175,23 +166,23 @@ const LeftSideBar = () => {
       <div className="ls-list">
         {showSearch && user ? (
           <div onClick={addChat} className="friends add-user">
-            <img src={user.avatar} alt="" /> {/* User avatar */}
-            <p>{user.name}</p> {/* User name */}
+            <img src={user.avatar} alt="" />
+            <p>{user.name}</p> 
           </div>
         ) : (
           chatData && chatData.length > 0 ? (
             chatData.map((item, index) => (
               <div onClick={() => setChat(item)} key={index} className={`friends ${item.messageSeen || item.messagesId === messagesId ? "" : "border"}`}
               >
-                <img src={item.userData.avatar} alt="" /> {/* Profile image */}
+                <img src={item.userData.avatar} alt="" />
                 <div>
-                  <p>{item.userData.name}</p> {/* Profile name */}
-                  <span>{item.lastMessage}</span> {/* Chat message */}
+                  <p>{item.userData.name}</p> 
+                  <span>{item.lastMessage}</span> 
                 </div>
               </div>
             ))
           ) : (
-            <p>No chats available</p> // Placeholder for no chats scenario
+            <p className="no-chat">No chats available</p> 
           )
         )}
       </div>
