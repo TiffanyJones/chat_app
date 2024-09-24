@@ -16,42 +16,34 @@ const AppContextProvider = (props) => {
 
   const loadUserData = async (uid) => {
     try {
-      // Reference to the user's document in Firestore
       const userRef = doc(db, "users", uid);
-      
-      // Fetch the user document
       const userSnap = await getDoc(userRef);
-      
-      // Check if the user document exists
+
       if (userSnap.exists()) {
-        const userData = userSnap.data();  // Get the user data
-        
-        // Update the state with the user data
+        const userData = userSnap.data();
+
         setUserData(userData);
-  
-        // Check if the user has an avatar and name, navigate accordingly
+
         if (userData.avatar && userData.name) {
-          navigate('/chat');
+          navigate("/chat");
         } else {
-          navigate('/profile');
+          navigate("/profile");
         }
-  
-        // Update the user's last seen time
+
         await updateDoc(userRef, {
           lastSeen: Date.now(),
         });
-  
-        // Set up an interval to periodically update the last seen time
+
         setInterval(async () => {
           if (auth.currentUser) {
             await updateDoc(userRef, {
               lastSeen: Date.now(),
             });
           }
-        }, 60000);  // Update every 60 seconds
+        }, 60000);
       } else {
         toast.error("User data not found.");
-        navigate('/');  // Navigate back to login if no user data is found
+        navigate("/");
       }
     } catch (error) {
       toast.error("Failed to load user data.");
@@ -84,9 +76,12 @@ const AppContextProvider = (props) => {
     chatData,
     setChatData,
     loadUserData,
-    messages, setMessages,
-    messagesId, setMessagesId,
-    chatUser, setChatUser
+    messages,
+    setMessages,
+    messagesId,
+    setMessagesId,
+    chatUser,
+    setChatUser,
   };
 
   return (

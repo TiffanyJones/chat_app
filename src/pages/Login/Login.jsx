@@ -12,7 +12,7 @@ const Login = () => {
 
   const onSubmitHandler = async (event) => {
     event.preventDefault();
-    console.log("Submitting form:", { currState, userName, email, password }); // Log form submission details
+    console.log("Submitting form:", { currState, userName, email, password });
 
     try {
       if (currState === "Sign up") {
@@ -21,11 +21,11 @@ const Login = () => {
       } else {
         // Log the attempt to log in
         console.log("Attempting to login with:", email, password);
-        const userCredential = await login(email, password); // Make sure your login function returns the user credential
-        console.log("Login successful:", userCredential); // Log success
+        const userCredential = await login(email, password);
+        console.log("Login successful:", userCredential);
       }
     } catch (error) {
-      console.error("Error during login/signup:", error); // Log the specific error
+      console.error("Error during login/signup:", error);
       toast.error("An error occurred. Please try again.");
     }
   };

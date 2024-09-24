@@ -26,30 +26,29 @@ const ProfileUpdate = () => {
       }
       const docRef = doc(db, "users", uid);
       let imgUrl = prevImage;
-  
+
       if (image) {
         imgUrl = await upload(image);
         setPrevImg(imgUrl);
       }
-  
+
       await updateDoc(docRef, {
         avatar: imgUrl,
         bio: bio,
         name: name,
       });
-  
+
       const snap = await getDoc(docRef);
       setUserData(snap.data());
-  
-      // Force re-render with updated data
-      setPrevImg(imgUrl);
-      navigate('/chat');
+
+       setPrevImg(imgUrl);
+      navigate("/chat");
     } catch (error) {
       console.error(error);
       toast.error(error.message);
     }
   };
-  
+
   useEffect(() => {
     onAuthStateChanged(auth, async (user) => {
       if (user) {

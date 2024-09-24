@@ -9,12 +9,11 @@ const Chat = () => {
   const { chatData, userData } = useContext(AppContext);
   const [loading, setLoading] = useState(true);
 
-  useEffect(()=>{
-    if(chatData && userData){
-      setLoading(false)
+  useEffect(() => {
+    if (chatData && userData) {
+      setLoading(false);
     }
-
-  },[chatData, userData])
+  }, [chatData, userData]);
 
   return (
     <div className="chat">
